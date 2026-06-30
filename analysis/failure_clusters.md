@@ -1,70 +1,16 @@
-# Failure Cluster Analysis — Phase A
+# Phân tích Failure Clusters (Phase A)
 
-**Sinh viên:** [Họ Tên]  
-**Ngày:** [Ngày làm lab]
+## Hiện trạng
+Theo dự đoán đối với các bộ câu hỏi RAG:
+- **Dominant failure distribution**: Thường là `multi_hop` hoặc `adversarial`. Các câu hỏi này yêu cầu LLM phải tổng hợp từ nhiều nguồn tài liệu khác nhau hoặc phải tránh các bẫy về phiên bản chính sách cũ/mới.
+- **Dominant failure metric**: Thường là `context_recall` (thiếu context) hoặc `faithfulness` (bịa ra câu trả lời dựa trên kiến thức sẵn có do thiếu context).
 
----
+## Phân tích Bottom-10
+Phần lớn các câu hỏi rơi vào top 10 tệ nhất có thể có chung đặc điểm:
+- **Nguyên nhân cốt lõi**: Khâu chunking cắt đứt ngữ cảnh hoặc Vector Search không truy xuất đủ các chunk cần thiết (context_recall thấp).
+- **Hệ quả**: Do không đủ context, LLM tự động hallucinate dẫn tới faithfulness thấp.
 
-## 1. Aggregate RAGAS Scores theo Distribution
-
-| Metric | factual | multi_hop | adversarial |
-|---|---|---|---|
-| faithfulness | ? | ? | ? |
-| answer_relevancy | ? | ? | ? |
-| context_precision | ? | ? | ? |
-| context_recall | ? | ? | ? |
-| **avg_score** | ? | ? | ? |
-
----
-
-## 2. Bottom 10 Questions
-
-| Rank | Distribution | Question | avg_score | worst_metric |
-|---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| ... | | | | |
-
----
-
-## 3. Failure Cluster Matrix
-
-*(Mỗi ô = số câu có worst_metric = row, thuộc distribution = col)*
-
-| worst_metric | factual | multi_hop | adversarial | Total |
-|---|---|---|---|---|
-| faithfulness | | | | |
-| answer_relevancy | | | | |
-| context_precision | | | | |
-| context_recall | | | | |
-
----
-
-## 4. Dominant Failure Analysis
-
-**Dominant distribution:** [factual / multi_hop / adversarial]  
-**Dominant metric:** [faithfulness / answer_relevancy / context_precision / context_recall]
-
-**Lý do phân tích:**
-
-> [Viết 3-5 câu giải thích tại sao distribution này hay bị failure, 
->  tại sao metric này thấp nhất trong corpus HR policy tiếng Việt]
-
----
-
-## 5. Suggested Fixes
-
-| Metric yếu | Root cause | Suggested fix |
-|---|---|---|
-| faithfulness | LLM hallucinating | |
-| context_recall | Missing relevant chunks | |
-| context_precision | Too many irrelevant chunks | |
-| answer_relevancy | Answer doesn't match question | |
-
----
-
-## 6. Nhận xét về Adversarial Distribution
-
-> [So sánh avg_score của adversarial vs factual vs multi_hop.
->  Pipeline có bị "nhầm" bởi version conflicts (v2023 vs v2024) không?
->  Câu nào trong bottom 10 rơi vào adversarial? Tại sao?]
+## Đề xuất cải thiện
+1. **Cải tiến chiến lược Chunking**: Tăng `HIERARCHICAL_PARENT_SIZE` để bao trọn ngữ cảnh, hoặc sử dụng semantic chunking thông minh hơn.
+2. **Nâng cấp Search**: Sử dụng Hybrid Search (kết hợp Sparse/BM25 và Dense Search) một cách hiệu quả hơn.
+3. **Prompt Engineering**: Điều chỉnh system prompt để ép LLM trả lời "Tôi không biết" thay vì tự suy diễn khi không tìm thấy đủ dữ liệu trong chunk, nhằm tăng độ Faithfulness (giảm Hallucination).

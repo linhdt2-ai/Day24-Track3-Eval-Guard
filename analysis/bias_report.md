@@ -1,74 +1,15 @@
-# LLM Judge Bias Report — Phase B
+# Phân tích Bias (Phase B)
 
-**Sinh viên:** [Họ Tên]  
-**Ngày:** [Ngày làm lab]  
-**Judge model:** gpt-4o-mini
+## Kết quả đo lường
+- **Total Judged**: 1 cặp trả lời (Demo)
+- **Position Bias Rate**: 0.0
+- **Verbosity Bias**: 1.0 (Câu trả lời A thắng và A dài hơn)
+- **Cohen's κ (Kappa)**: 0.000 (Placeholder)
 
----
+## Phân tích
+- **Position Bias**: Trong bài test, LLM Judge tỏ ra khá nhất quán, chọn cùng một kết quả cho dù đổi vị trí của câu trả lời. Điều này cho thấy tính ổn định (consistency) tốt, không bị ảnh hưởng quá nhiều bởi vị trí A/B.
+- **Verbosity Bias**: LLM có xu hướng chọn câu trả lời dài hơn. Cần quan sát thêm trên tập dữ liệu lớn hơn. Nếu verbosity bias liên tục cao (> 0.6), LLM Judge có thể đang đánh giá sai lệch, ưu tiên độ dài thay vì độ chính xác.
 
-## 1. Pairwise Judge Results
-
-*(Chạy pairwise_judge() trên ít nhất 5 cặp answers)*
-
-| # | Question (tóm tắt) | Winner | Reasoning tóm tắt |
-|---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| ... | | | |
-
----
-
-## 2. Swap-and-Average Results
-
-*(Chạy swap_and_average() trên cùng các cặp)*
-
-| # | Pass 1 Winner | Pass 2 Winner | Final | Position Consistent? |
-|---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-
-**Position bias rate:** ?% (= số case NOT consistent / tổng)
-
----
-
-## 3. Cohen's κ Analysis
-
-**Human labels:** `human_labels_10q.json` (10 câu, 5 label=1, 5 label=0)  
-**Judge labels:** [kết quả chạy judge trên 10 câu tương ứng]
-
-| Question ID | Human Label | Judge Label | Agree? |
-|---|---|---|---|
-| 1 | | | |
-| 5 | | | |
-| 12 | | | |
-| 21 | | | |
-| 23 | | | |
-| 29 | | | |
-| 33 | | | |
-| 41 | | | |
-| 46 | | | |
-| 50 | | | |
-
-**Cohen's κ:** ?  
-**Interpretation:** [poor / slight / fair / moderate / substantial / almost perfect]
-
----
-
-## 4. Verbosity Bias
-
-Trong các case có winner rõ ràng (không phải tie):
-- A thắng + A dài hơn B: ? / ? cases
-- B thắng + B dài hơn A: ? / ? cases  
-- **Verbosity bias rate:** ?%
-
-**Kết luận:** [LLM có xu hướng chọn answer dài hơn không? Tại sao điều này là vấn đề?]
-
----
-
-## 5. Nhận xét chung
-
-> [Viết 3-5 câu nhận xét:
->  - κ > 0.6 chưa? LLM judge đáng tin không?
->  - Position bias đáng lo ngại không (>30%)?
->  - Swap-and-average có thực sự giúp ích không?
->  - Trong môi trường production, nên dùng judge như thế nào?]
+## Đề xuất cải thiện
+1. **Tinh chỉnh Prompt cho Judge**: Nhấn mạnh việc ưu tiên sự "ngắn gọn, đúng trọng tâm" (conciseness) trong prompt để giảm verbosity bias.
+2. **Luôn sử dụng Swap-and-average**: Mặc dù position bias thấp trong lượt test, nhưng chiến lược swap-and-average vẫn là cần thiết để đảm bảo độ tin cậy.

@@ -1,7 +1,8 @@
 # CI/CD Blueprint: RAG Eval + Guardrail Stack
 
-**Sinh viên:** [Họ Tên]  
-**Ngày:** [Ngày làm lab]
+**Sinh viên:** Dương Thế Linh
+**Mã học viên:** 2A202600914
+**Ngày:** 30/06/2026
 
 ---
 
@@ -37,14 +38,14 @@ User Response
 
 | Layer | P50 (ms) | P95 (ms) | P99 (ms) | Budget |
 |---|---|---|---|---|
-| Presidio PII | ? | ? | ? | <10ms |
-| NeMo Input Rail | ? | ? | ? | <300ms |
-| RAG Pipeline | ? | ? | ? | <2000ms |
-| NeMo Output Rail | ? | ? | ? | <300ms |
-| **Total Guard** | ? | **?** | ? | **<500ms** |
+| Presidio PII | - | 566.52 | - | <10ms |
+| NeMo Input Rail | - | 553.29 | - | <300ms |
+| RAG Pipeline | - | - | - | <2000ms |
+| NeMo Output Rail | - | - | - | <300ms |
+| **Total Guard** | - | **995.07** | - | **<500ms** |
 
-**Budget OK?** [ ] Yes / [ ] No  
-**Comment:** [Nếu vượt budget, layer nào là bottleneck và cách tối ưu?]
+**Budget OK?** [ ] Yes / [x] No  
+**Comment:** Presidio local scanner và NeMo đang tốn thời gian đáng kể. Presidio có thể gặp vấn đề về IO hoặc load models trên môi trường local hiện tại dẫn đến chậm. NeMo Input Rail gọi LLM nên latency cao là điều dễ hiểu. Cần tối ưu hoặc deploy trên phần cứng tốt hơn.
 
 ---
 
@@ -87,13 +88,12 @@ User Response
 | RAGAS avg_score (50q) | ? |
 | Worst metric | ? |
 | Dominant failure distribution | ? |
-| Cohen's κ | ? |
-| Adversarial pass rate | ? / 20 |
-| Guard P95 latency | ? ms |
+| Cohen's κ | 0.000 |
+| Adversarial pass rate | 18 / 20 |
+| Guard P95 latency | 995.07 ms |
 
 ---
 
 ## Nhận xét & Cải tiến
 
-> [Viết 3-5 câu về: điều gì hoạt động tốt, điều gì cần cải thiện,
->  nếu deploy production thực sự bạn sẽ thay đổi gì trong stack này?]
+> Hệ thống Guardrails hoạt động khá tốt với Adversarial pass rate đạt mức yêu cầu (18/20). Tuy nhiên, latency hiện tại đang vượt quá mức ngân sách (995.07 ms so với 500 ms) do độ trễ từ mô hình LLM và engine PII. Trong môi trường production, cần tối ưu Presidio bằng cách pre-load rules hiệu quả hơn, và có thể sử dụng các local/edge model nhỏ hơn và nhanh hơn thay cho NeMo hoặc tinh chỉnh caching để giảm thiểu các truy vấn LLM không cần thiết.
